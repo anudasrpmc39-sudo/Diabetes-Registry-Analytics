@@ -9,8 +9,6 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 
-from utils import load_data
-from dashboard.utils import load_data
 
 # ============================================================
 # Page Configuration

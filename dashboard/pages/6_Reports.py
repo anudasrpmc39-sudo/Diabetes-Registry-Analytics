@@ -5,181 +5,123 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from utils import load_data
 
-
 import streamlit as st
+import pandas as pd
 
 # ======================================================
 # Page Configuration
 # ======================================================
 
 st.set_page_config(
-    page_title="About",
-    page_icon="ℹ️",
+    page_title="Reports & Export",
+    page_icon="📄",
     layout="wide"
 )
 
 # ======================================================
-# Header
+# Load Data
 # ======================================================
 
-st.title("ℹ️ About the Project")
+df = load_data()
+
+# ======================================================
+# Title
+# ======================================================
+
+st.title("📄 Reports & Export")
 
 st.markdown("""
-# Diabetes Registry Analytics Platform
-
-A comprehensive Health Informatics dashboard developed to demonstrate
-clinical data analytics, disease surveillance, and machine learning
-using a synthetic diabetes registry dataset.
+Generate reports and download filtered diabetes registry data.
 """)
+
+# ======================================================
+# Sidebar Filters
+# ======================================================
+
+st.sidebar.header("🔍 Filters")
+
+district = st.sidebar.selectbox(
+    "District",
+    ["All"] + sorted(df["District"].unique())
+)
+
+sex = st.sidebar.selectbox(
+    "Sex",
+    ["All"] + sorted(df["Sex"].unique())
+)
+
+diabetes_type = st.sidebar.selectbox(
+    "Diabetes Type",
+    ["All"] + sorted(df["Diabetes_Type"].unique())
+)
+
+filtered_df = df.copy()
+
+if district != "All":
+    filtered_df = filtered_df[
+        filtered_df["District"] == district
+    ]
+
+if sex != "All":
+    filtered_df = filtered_df[
+        filtered_df["Sex"] == sex
+    ]
+
+if diabetes_type != "All":
+    filtered_df = filtered_df[
+        filtered_df["Diabetes_Type"] == diabetes_type
+    ]
+
+# ======================================================
+# Registry Summary
+# ======================================================
+
+st.subheader("📊 Registry Summary")
+
+c1, c2, c3, c4 = st.columns(4)
+
+c1.metric("Patients", f"{len(filtered_df):,}")
+c2.metric("Average Age", f"{filtered_df['Age'].mean():.1f}")
+c3.metric("Average HbA1c", f"{filtered_df['HbA1c_pct'].mean():.2f}%")
+c4.metric("Average BMI", f"{filtered_df['BMI'].mean():.1f}")
 
 st.divider()
 
 # ======================================================
-# Project Overview
+# Data Preview
 # ======================================================
 
-st.header("🎯 Project Objectives")
+st.subheader("📋 Filtered Dataset")
 
-st.markdown("""
-This project demonstrates how Health Informatics can support:
-
-- Clinical decision support
-- Disease surveillance
-- Population health management
-- Laboratory analytics
-- Diabetes complication monitoring
-- Predictive analytics using Machine Learning
-""")
+st.dataframe(
+    filtered_df,
+    use_container_width=True
+)
 
 # ======================================================
-# Dashboard Modules
+# Download CSV
 # ======================================================
 
-st.header("📊 Dashboard Modules")
+csv = filtered_df.to_csv(index=False).encode("utf-8")
 
-modules = [
-    "📊 Overview Dashboard",
-    "👥 Demographics Dashboard",
-    "🩸 Laboratory Dashboard",
-    "⚠️ Complications Dashboard",
-    "🤖 Machine Learning Dashboard",
-    "📄 Reports & Export"
-]
-
-for module in modules:
-    st.write(f"✅ {module}")
-
-st.divider()
+st.download_button(
+    label="⬇ Download Filtered CSV",
+    data=csv,
+    file_name="filtered_diabetes_registry.csv",
+    mime="text/csv"
+)
 
 # ======================================================
-# Dataset
+# Summary Statistics
 # ======================================================
 
-st.header("🗂 Dataset")
+summary = filtered_df.describe(include="all")
 
-col1, col2 = st.columns(2)
+summary_csv = summary.to_csv().encode("utf-8")
 
-with col1:
-    st.metric("Patients", "700,000")
-    st.metric("Clinical Variables", "24+")
-
-with col2:
-    st.metric("Disease", "Diabetes")
-    st.metric("Data Type", "Synthetic Registry")
-
-st.markdown("""
-The dataset includes:
-
-- Demographic information
-- Laboratory investigations
-- Diabetes type
-- Complications
-- Kidney function
-- Cardiovascular outcomes
-- High-risk classification
-""")
-
-st.divider()
-
-# ======================================================
-# Machine Learning
-# ======================================================
-
-st.header("🤖 Machine Learning")
-
-st.markdown("""
-The platform includes a Random Forest classifier that predicts
-whether a patient is at high risk based on clinical variables.
-
-Model outputs include:
-
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-- ROC-AUC
-- Confusion Matrix
-- Feature Importance
-- Individual Patient Prediction
-""")
-
-st.divider()
-
-# ======================================================
-# Technology Stack
-# ======================================================
-
-st.header("🛠 Technology Stack")
-
-tech1, tech2 = st.columns(2)
-
-with tech1:
-    st.markdown("""
-**Programming**
-
-- Python
-- Pandas
-- NumPy
-- Scikit-learn
-""")
-
-with tech2:
-    st.markdown("""
-**Visualization & Deployment**
-
-- Streamlit
-- Plotly
-- Joblib
-- Git & GitHub
-""")
-
-st.divider()
-
-# ======================================================
-# Developer
-# ======================================================
-
-st.header("👨‍⚕️ Developer")
-
-st.markdown("""
-**Dr. Anupom Das**
-
-- MBBS
-- Field Epidemiology Training Program (FETP)
-- MSc Health Informatics
-- Karolinska Institutet
-""")
-
-st.info("""
-This project was developed as a professional portfolio project to
-demonstrate expertise in Health Informatics, Clinical Data Analytics,
-Machine Learning, and Interactive Dashboard Development.
-""")
-
-st.divider()
-
-# ======================================================
-# Footer
-# ======================================================
-
-st.caption("© 2026 Diabetes Registry Analytics Platform | Developed using Python & Streamlit")
+st.download_button(
+    label="⬇ Download Summary Statistics",
+    data=summary_csv,
+    file_name="summary_statistics.csv",
+    mime="text/csv"
+)
