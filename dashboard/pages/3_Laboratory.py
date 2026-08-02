@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from utils import load_data
+
 # 3_Laboratory.py
 # Complete Laboratory Dashboard
 # Replace your existing dashboard/pages/3_Laboratory.py with this file.
