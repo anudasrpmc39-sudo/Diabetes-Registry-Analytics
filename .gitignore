@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Streamlit cache
+.streamlit/
+
+# Models (optional)
+# Uncomment the next line if you do NOT want to store trained models
+# models/
+
+# Operating system
+.DS_Store
+Thumbs.db
